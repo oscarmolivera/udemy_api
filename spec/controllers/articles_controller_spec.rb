@@ -39,8 +39,24 @@ describe ArticlesController, type: :controller do
       expect(json_data.first['id']).to  eq(expected_article)
     end
     
-    
   end
-  
-  
+
+  describe '#show' do
+    let(:article) { create :article }
+    subject { get :show, params: { id: article.id } }
+
+    it 'deberá responder estado OK.' do
+      subject
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'deberá responder un objeto json FORMATEADO' do
+      subject
+      expect(json_data['attributes']).to eq({
+          "title" => article.title,
+          "content" => article.content,
+          "slug" => article.slug
+      })
+    end
+  end
 end

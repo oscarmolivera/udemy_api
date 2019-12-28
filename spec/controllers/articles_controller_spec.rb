@@ -11,12 +11,16 @@ describe ArticlesController, type: :controller do
     end
 
     it "deberia responder un objeto JSON" do
-      create_list :article, 2
+      articles = create_list :article, 3
       subject
-      json = JSON.parse(response.body)
       pp json # => impime la variable
-      json_data = json['data']
-      expect(json_data.length).to eq(2)
+      articles.each_with_index do |article, index|
+        expect(json_data[index]['attributes']).to eq({
+          "title" => article.title,
+          "content" => article.content,
+          "slug" => article.slug
+        })  
+      end
     end
     
   end

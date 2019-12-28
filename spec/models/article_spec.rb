@@ -30,4 +30,15 @@ RSpec.describe Article, type: :model do
     end    
   end
   
+  describe ".recent" do
+
+    it "retorna como first el ULTIMO archivo creado." do
+      older_article = create :article
+      newer_article = create :article
+      expect(described_class.recent).to  eq([newer_article, older_article])
+      older_article.update_column :created_at, Time.now
+      expect(described_class.recent).to  eq([older_article, newer_article])
+    end
+
+  end
 end

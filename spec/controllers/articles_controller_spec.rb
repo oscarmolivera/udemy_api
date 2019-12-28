@@ -11,16 +11,24 @@ describe ArticlesController, type: :controller do
     end
 
     it "deberia responder un objeto JSON" do
-      articles = create_list :article, 3
+      create_list :article, 3
       subject
       pp json # => impime la variable
-      articles.each_with_index do |article, index|
+      Article.recent.each_with_index do |article, index|
         expect(json_data[index]['attributes']).to eq({
           "title" => article.title,
           "content" => article.content,
           "slug" => article.slug
         })  
       end
+    end
+
+    it "deberá mostrar los articulos en ORDEN Invertido" do
+        old_article = create :article
+        new_article = create :article
+        subject
+        expect(json_data.first['id']).to eq(new_article.id.to_s)  
+        expect(json_data.last['id']).to eq(old_article.id.to_s)  
     end
     
   end

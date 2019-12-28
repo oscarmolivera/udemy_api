@@ -11,11 +11,12 @@ describe ArticlesController, type: :controller do
     end
 
     it "deberia responder un objeto JSON" do
+      create_list :article, 2
       subject
       json = JSON.parse(response.body)
       pp json # => impime la variable
-      #json_data = json['data']
-      #expect(json_data.length).to eq.(2)
+      json_data = json['data']
+      expect(json_data.length).to eq(2)
     end
     
   end

@@ -7,7 +7,7 @@ RSpec.describe AccessToken, type: :model do
       expect(user.build_access_token).to be_valid
     end
 
-    xit "deberá tener un token ÚNICO." do
+    it "deberá tener un token ÚNICO." do
     end 
   end
 

@@ -2,26 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AccessTokensController, type: :controller do
   describe "#create" do
-    shared_examples_for "unauthorized_requests" do
-      let(:authentication_error) do
-        {
-          "status" => "401",
-          "source" => { "pointer" => "/code" },
-          "title" =>  "Authentication code is invalid",
-          "detail" => "You must provide valid code in order to exchange it for token."
-        }
-      end
 
-      it "si no EXISTE el código, responder en 401." do
-        subject
-        expect(response).to  have_http_status(401)
-      end
-
-      it "deberá retornar una ESTRUCTURA Json de Error." do
-        subject
-        expect(json['errors']).to  include(authentication_error)
-      end
-    end
     context "cuando no se provee código" do
       subject { post :create } 
       it_behaves_like "unauthorized_requests"
@@ -70,26 +51,14 @@ RSpec.describe AccessTokensController, type: :controller do
   end
 
   describe "#destroy" do
-    context "cuando se reciben Solicitides INVÁLIDAS" do
-      let(:authorization_error) do
-        {
-          "status" => "403",
-          "source" => { "pointer" => "/headers/authorization" },
-          "title" =>  "Not authorized",
-          "detail" => "You have no right to access this resource."
-        }
-      end
+    subject { delete :destroy }
+    context "cuando no se reciben ENCABEZADOS" do
+      it_behaves_like 'forbidden_requests'
+    end
 
-      subject {delete :destroy}
-      it "deberá retornar código de error 403." do
-        subject
-        expect(response).to  have_http_status(:forbidden)
-      end
-
-      it "deberá retornar un objeto json con ESTRUCTURA." do
-        subject
-        expect(json['errors']).to eq([authorization_error])
-      end
+    context 'when invalid authorization header provided' do
+      before { request.headers['authorization'] = 'Invalid token' }
+      it_behaves_like 'forbidden_requests'
     end
 
     context "cuando se reciben Solicitides VÁLIDAS" do

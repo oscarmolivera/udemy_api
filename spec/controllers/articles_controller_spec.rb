@@ -61,14 +61,65 @@ describe ArticlesController, type: :controller do
   end
 
   describe "#create" do
-    subject {post :create}
-    context "cuando el request proviene de un Usuario NO-AUTHENTICADO" do
-      it_behaves_like "forbidden_requests"
+    subject { post :create }
+
+    context 'cuando NO se provee código' do
+      it_behaves_like 'forbidden_requests'
     end
 
-    context "cuando el codigo de Authorizacion es Inválido" do
-      before {request.headers['authorization'] = "Invalid code"}
-      it_behaves_like "forbidden_requests"
+    context 'cuando el código ENTREGADO es Inválido' do
+      before { request.headers['authorization'] = 'Invalid token' }
+      it_behaves_like 'forbidden_requests'
+    end
+
+    context 'cuando el código esta válido para procesar' do
+      let(:access_token) { create :access_token }
+      before { request.headers['authorization'] = "Bearer #{access_token.token}" }
+
+      let(:invalid_attributes) do
+        {
+          data: {
+            attributes: {
+              tittle: '',
+              content: ''
+            }
+          }
+        }
+      end
+
+      subject { post :create, params: invalid_attributes }
+
+      it 'debería retornar código de estado 422.' do
+        subject
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'debería retornar un objeto JSON con estructura.' do
+        subject
+        expect(json['errors']).to include(
+          {
+            "code"=>"blank",
+            "detail"=>"Title can't be blank",
+            "source"=>{"pointer"=>"/data/attributes/title"},
+            "status"=>"422",
+            "title"=>"Unprocessable Entity"
+          },
+          {
+            "code"=>"blank",
+            "detail"=>"Content can't be blank",
+            "source"=>{"pointer"=>"/data/attributes/content"},
+            "status"=>"422",
+            "title"=>"Unprocessable Entity"
+          },
+          { 
+            "code"=>"blank",
+            "detail"=>"Slug can't be blank",
+            "source"=>{"pointer"=>"/data/attributes/slug"},
+            "status"=>"422",
+            "title"=>"Unprocessable Entity"
+          }
+        )
+      end
     end
   end
 end

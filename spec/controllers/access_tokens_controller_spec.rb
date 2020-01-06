@@ -62,7 +62,19 @@ RSpec.describe AccessTokensController, type: :controller do
     end
 
     context "cuando se reciben Solicitides VÁLIDAS" do
-      
+      let(:user) {create :user}
+      let(:access_token) { user.create_access_token}
+      before { request.headers['authorization'] = "Bearer #{access_token.token}"}
+
+      it "deberá retornar código 204." do
+        subject  
+        expect(subject).to  have_http_status(204)
+      end
+
+      it "deberá REMOVER el access token." do
+        subject
+        expect{ subject }.to change{ AccessToken.count }.by(0)
+      end
     end
   end
 end

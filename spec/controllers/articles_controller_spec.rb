@@ -59,4 +59,16 @@ describe ArticlesController, type: :controller do
       })
     end
   end
+
+  describe "#create" do
+    subject {post :create}
+    context "cuando el request proviene de un Usuario NO-AUTHENTICADO" do
+      it_behaves_like "forbidden_requests"
+    end
+
+    context "cuando el codigo de Authorizacion es Inválido" do
+      before {request.headers['authorization'] = "Invalid code"}
+      it_behaves_like "forbidden_requests"
+    end
+  end
 end
